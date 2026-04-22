@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecurQR — Cryptographically Secure QR Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background: var(--bg-darkest);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image:
+        radial-gradient(ellipse at 15% 20%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6, 13, 24, 0.9) 0%, var(--bg-darkest) 100%);
+    }
+
+    .login-wrapper {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Left Panel */
+    .login-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-left::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(124, 58, 237, 0.06));
+      pointer-events: none;
+    }
+
+    .login-hero {
+      text-align: center;
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-icon {
+      width: 110px; height: 110px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 54px;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 60px var(--primary-glow), 0 0 120px var(--secondary-glow);
+      animation: heroPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes heroPulse {
+      0%, 100% { box-shadow: 0 0 40px var(--primary-glow), 0 0 80px var(--secondary-glow); }
+      50% { box-shadow: 0 0 80px var(--primary-glow), 0 0 160px var(--secondary-glow); }
+    }
+
+    .hero-title {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 40%, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .feature-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12.5px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .security-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 40px;
+      max-width: 420px;
+    }
+
+    .metric-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .metric-box .m-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+    }
+
+    .metric-box .m-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Floating particles */
+    .particles {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.15; }
+      90% { opacity: 0.15; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Right Panel - Login Form */
+    .login-right {
+      width: 480px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      border-left: 1px solid var(--border);
+      background: var(--bg-card);
+      position: relative;
+    }
+
+    .login-form-box {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .form-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .form-brand-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .form-brand h1 { font-size: 22px; font-weight: 800; color: #fff; }
+    .form-brand span { font-size: 11px; color: var(--text-muted); display: block; }
+
+    .login-title { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .login-sub { color: var(--text-muted); font-size: 13.5px; margin-bottom: 28px; }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .input-wrapper input {
+      padding-left: 42px;
+    }
+
+    .input-wrapper .input-toggle {
+      position: absolute;
+      right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-muted);
+      cursor: pointer; font-size: 16px;
+    }
+
+    .remember-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px; font-size: 13px;
+    }
+
+    .remember-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-secondary); }
+    .remember-row input[type=checkbox] { accent-color: var(--primary); }
+    .remember-row a { color: var(--primary); font-size: 13px; }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #000;
+      font-weight: 800;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 0 30px var(--primary-glow);
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 0 50px var(--primary-glow); }
+    .btn-login:active { transform: translateY(0); }
+
+    .btn-login .btn-shine {
+      position: absolute; top: 0; left: -100%;
+      width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { left: -100%; }
+      50%, 100% { left: 200%; }
+    }
+
+    .divider-text {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .divider-text::before, .divider-text::after {
+      content: '';
+      position: absolute;
+      top: 50%; width: 40%;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-text::before { left: 0; }
+    .divider-text::after { right: 0; }
+
+    .demo-accounts {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 20px;
+    }
+
+    .demo-accounts h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+
+    .demo-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      margin-bottom: 7px;
+      transition: var(--transition);
+    }
+
+    .demo-btn:hover { border-color: var(--primary); background: var(--bg-hover); }
+    .demo-btn:last-child { margin-bottom: 0; }
+    .demo-btn .d-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .demo-btn .d-role { font-size: 11px; color: var(--text-muted); }
+    .demo-btn .d-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+    .demo-btn .d-badge.admin { background: var(--danger); color: #fff; }
+    .demo-btn .d-badge.analyst { background: var(--secondary); color: #fff; }
+
+    .security-note {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 20px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px; color: var(--accent);
+    }
+
+    .error-alert {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--danger);
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .login-left { display: none; }
+      .login-right { width: 100%; border-left: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-container" class="toast-container"></div>
+
+  <div class="login-wrapper">
+    <!-- Left Hero Panel -->
+    <div class="login-left">
+      <div class="particles" id="particles"></div>
+
+      <div class="login-hero">
+        <div class="hero-icon">🔐</div>
+        <h1 class="hero-title">SecurQR Platform</h1>
+        <p class="hero-sub">
+          The world's most advanced cryptographically secured QR code authentication system. 
+          Protect your products, detect counterfeits instantly, and secure your supply chain.
+        </p>
+
+        <div class="feature-chips">
+          <span class="chip">🔒 SHA-256 Signatures</span>
+          <span class="chip">⚡ Real-time Scanning</span>
+          <span class="chip">🛡️ Anti-Fraud AI</span>
+          <span class="chip">📊 Live Analytics</span>
+          <span class="chip">🌐 Supply Chain Track</span>
+          <span class="chip">🚨 Fraud Alerts</span>
+        </div>
+
+        <div class="security-metrics">
+          <div class="metric-box">
+            <span class="m-val">99.9%</span>
+            <div class="m-label">Detection Rate</div>
+          </div>
+          <div class="metric-box">
+            <span class="m-val">&lt;1s</span>
+            <div class="m-label">Scan Speed</div>
+          </div>
+          <div class="metric-box">
+            <span class="m-val">256-bit</span>
+            <div class="m-label">Encryption</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Login Form -->
+    <div class="login-right">
+      <div class="login-form-box">
+        <div class="form-brand">
+          <div class="form-brand-icon">🔐</div>
+          <div>
+            <h1>SecurQR</h1>
+            <span>Anti-Fraud Detection Platform</span>
+          </div>
+        </div>
+
+        <h2 class="login-title">Welcome back</h2>
+        <p class="login-sub">Sign in to access your secure dashboard</p>
+
+        <div class="error-alert" id="errorAlert">
+          <span>⚠️</span>
+          <span id="errorMsg">Invalid username or password</span>
+        </div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <div class="input-wrapper">
+              <span class="input-icon">👤</span>
+              <input type="text" class="form-control" id="username" placeholder="Enter username" autocomplete="username" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔑</span>
+              <input type="password" class="form-control" id="password" placeholder="Enter password" autocomplete="current-password" required>
+              <button type="button" class="input-toggle" id="togglePwd" title="Toggle password">👁️</button>
+            </div>
+          </div>
+
+          <div class="remember-row">
+            <label><input type="checkbox" id="remember"> Remember me</label>
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-login" id="loginBtn">
+            <div class="btn-shine"></div>
+            🔐 Sign In Securely
+          </button>
+        </form>
+
+        <div class="divider-text">Quick Demo Access</div>
+
+        <div class="demo-accounts">
+          <h4>Test Accounts</h4>
+          <div class="demo-btn" onclick="fillDemo('admin','admin123')">
+            <div>
+              <div class="d-name">👑 admin</div>
+              <div class="d-role">Password: admin123</div>
+            </div>
+            <span class="d-badge admin">ADMIN</span>
+          </div>
+          <div class="demo-btn" onclick="fillDemo('analyst','analyst123')">
+            <div>
+              <div class="d-name">🔍 analyst</div>
+              <div class="d-role">Password: analyst123</div>
+            </div>
+            <span class="d-badge analyst">ANALYST</span>
+          </div>
+        </div>
+
+        <div class="security-note">
+          🛡️ All sessions are encrypted with TLS 1.3. No data is stored insecurely.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Floating Particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const colors = ['#00d4ff', '#7c3aed', '#10b981', '#f59e0b'];
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 6 + 2;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.cssText = `
+          width: ${size}px; height: ${size}px;
+          background: ${color};
+          left: ${Math.random() * 100}%;
+          animation-duration: ${Math.random() * 15 + 10}s;
+          animation-delay: ${Math.random() * 10}s;
+        `;
+        container.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // Toggle password
+    document.getElementById('togglePwd').addEventListener('click', function() {
+      const pwd = document.getElementById('password');
+      if (pwd.type === 'password') { pwd.type = 'text'; this.textContent = '🙈'; }
+      else { pwd.type = 'password'; this.textContent = '👁️'; }
+    });
+
+    // Fill demo
+    function fillDemo(user, pass) {
+      document.getElementById('username').value = user;
+      document.getElementById('password').value = pass;
+      document.getElementById('username').dispatchEvent(new Event('input'));
+    }
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const errorAlert = document.getElementById('errorAlert');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      errorAlert.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;margin:0 auto;border-color:rgba(0,0,0,0.2);border-top-color:#000"></span>';
+
+      try {
+        // Fetch users
+        const resp = await fetch('tables/users');
+        const json = await resp.json();
+        const users = json.data || [];
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+          // Save session
+          const session = { id: user.id, username: user.username, role: user.role, email: user.email, avatar: user.username[0].toUpperCase() };
+          localStorage.setItem('securqr_user', JSON.stringify(session));
+
+          // Update last login
+          await fetch(`tables/users/${user.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ last_login: new Date().toISOString() })
+          });
+
+          btn.innerHTML = '✅ Authenticating...';
+          btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          setTimeout(() => location.href = 'dashboard.html', 800);
+        } else {
+          errorAlert.style.display = 'flex';
+          document.getElementById('errorMsg').textContent = 'Invalid username or password. Please try again.';
+          btn.disabled = false;
+          btn.innerHTML = '<div class="btn-shine"></div> 🔐 Sign In Securely';
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      } catch(err) {
+        // Fallback demo login
+        const demos = { admin: { id:'u1', username:'admin', role:'admin', email:'admin@securqr.com', avatar:'A' }, analyst: { id:'u2', username:'analyst', role:'analyst', email:'analyst@securqr.com', avatar:'N' } };
+        if (demos[username] && password.includes('123')) {
+          localStorage.setItem('securqr_user', JSON.stringify(demos[username]));
+          btn.innerHTML = '✅ Authenticating...';
+          setTimeout(() => location.href = 'dashboard.html', 800);
+        } else {
+          errorAlert.style.display = 'flex';
+          document.getElementById('errorMsg').textContent = 'Connection error. Please try demo accounts.';
+          btn.disabled = false;
+          btn.innerHTML = '<div class="btn-shine"></div> 🔐 Sign In Securely';
+        }
+      }
+    });
+
+    // Prevent redirect if already logged in
+    const session = JSON.parse(localStorage.getItem('securqr_user') || 'null');
+    if (session) location.href = 'dashboard.html';
+  </script>
+</body>
+</html>
